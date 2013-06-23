@@ -5,7 +5,6 @@ require "vagrant-global-status/version"
 module Vagrant
   module Global
     module Status
-      attr :vms
 
       def run_command cmd, extra = {}
         status, stdout, stderr = systemu cmd, extra
