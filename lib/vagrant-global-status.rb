@@ -7,10 +7,15 @@ module Vagrant
     module Status
       attr :vms
 
+      def run_command cmd, extra = {}
+        status, stdout, stderr = systemu cmd, extra
+        raise "Problem running command: #{cmd}" unless status.success?
+        stdout
+      end
+
       def list_vms
         cmd = %q( VBoxManage list vms ) 
-        status, stdout, stderr = systemu cmd 
-        raise "Problem running command: #{cmd}" unless status.success?
+        stdout = run_command cmd
         vms = []
         stdout.each_line do |line|
           m = line.match(/"(.+)" {(.+)}/)
@@ -31,8 +36,7 @@ module Vagrant
 
       def vagrant_status vagrantfile_path
         cmd = %q( vagrant status )
-        status, stdout, stderr = systemu cmd, :cwd => vagrantfile_path
-        raise "Problem running command: #{cmd}" unless status.success?
+        stdout = run_command cmd, :cwd => vagrantfile_path
         m = stdout.match(/\b\s+(\w+) \(\w+\)/)
         m[1]
       end
