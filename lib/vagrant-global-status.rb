@@ -29,6 +29,14 @@ module Vagrant
         vagrantfiles
       end
 
+      def vagrant_status vagrantfile_path
+        cmd = %q( vagrant status )
+        status, stdout, stderr = systemu cmd, :cwd => vagrantfile_path
+        raise "Problem running command: #{cmd}" unless status.success?
+        m = stdout.match(/\b\s+(\w+) \(\w+\)/)
+        m[1]
+      end
+
       def status
         vms = list_vms
         vagrantfiles = vagrantfile_uuid
@@ -42,6 +50,10 @@ module Vagrant
           vagrantfile = vagrantfile[0]
           path = vagrantfile[:path].gsub(/\/.vagrant\/machines\/.+\/virtualbox\/id$/, '')
           puts "Vagrantfile path: #{path}"
+          if File.directory? path
+            status = vagrant_status path
+            puts "Vagrant status: #{status}"
+          end
           puts
         end
       end
